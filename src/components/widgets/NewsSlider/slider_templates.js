@@ -10,12 +10,13 @@ const SliderTemplates = (props) => {
     let template = null;
 
     const settings ={
-        dots:true,
+        dots: true,
         infinite: true,
         arrows: false,
         speed: 500,
         slidesToShow: 1,
-        slidesToScroll: 1
+        slidesToScroll: 1,
+        ...props.settings
     }
 
     switch (props.type) {
@@ -40,6 +41,9 @@ const SliderTemplates = (props) => {
                 )
             })
             break;
+        case ('other'):
+        
+        break;
         default:
         template = null;
             break;
