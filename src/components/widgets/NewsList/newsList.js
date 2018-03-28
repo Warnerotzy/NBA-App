@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import styles from './newslist.css';
 
 import { URL } from '../../../config';
 
@@ -18,19 +19,53 @@ class NewsList extends Component {
 
 
     componentWillMount(){
-        axios.get(`${URL}/articles?_start=${this.state.start}&_end=${this.state.end}`)
-        .then(response => {
-            this.setState({
-                items: [...this.state.items, ...response.data]
+        this.request(this.state.start, this.state.end);
+    }
+    
+    request = (start, end) => {
+        axios.get(`${URL}/articles?_start=${start}&_end=${end}`)
+            .then(response => {
+                this.setState({
+                    items: [...this.state.items, ...response.data]
+                })
             })
-        })
+    }
+
+    renderNews = (type) => {
+        let template = null;
+        switch(type){
+            case ('card'):
+                template = this.state.items.map(
+                    (item, i) => (
+                        <div key={i}>
+                            <div className={styles.newslist_item}>
+                                <Link to={`/articles/${item.id}`}>
+                                    <h2>{item.title}</h2>
+                                </Link>
+                            </div>
+                        </div>
+                ));
+                break;
+            default:
+                template = null;
+                break;
+        }
+        return template;
+    }
+
+    loadMore = () => {
+        let end = this.state.end + this.state.amount;
+        this.request(this.state.end, end);
     }
 
     render() {
         console.log(this.state.items);
         return (
             <div>
-                NewsList
+                {this.renderNews(this.props.type)}
+                <div onClick={()=> this.loadMore()}>
+                    LOAD MORE
+                </div>
             </div>
         );
     }
