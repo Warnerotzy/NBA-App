@@ -26,14 +26,14 @@ class NewsList extends Component {
     }
 
     request = (start, end) => {
-        if(this.state.teams.length < 1){
+        if (this.state.teams.length < 1) {
             axios.get(`${URL}/teams`)
-            .then(response => {
-                this.setState({
-                    teams: response.data
+                .then(response => {
+                    this.setState({
+                        teams: response.data
+                    })
                 })
-            })
-            
+
         }
 
         axios.get(`${URL}/articles?_start=${start}&_end=${end}`)
@@ -50,31 +50,66 @@ class NewsList extends Component {
         let template = null;
         switch (type) {
             case ('card'):
-            template = this.state.items.map(
-                (item, i) => (
-                    <CSSTransition
-                        classNames={{
-                            enter: styles.newsList_wrapper,
-                            enterActive:styles.newsList_wrapper_enter
-                        }}
-                        timeout={500}
-                        key={i}
-                    >
-                        <div>
-                            <div className={styles.newslist_item}>
-                                <Link to={`/articles/${item.id}`}>
-                                    <CardInfo 
-                                    teams={this.state.teams}
-                                    team={item.team}
-                                    date={item.date}
-                                    />
-                                    <h2>{item.title}</h2>
-                                </Link>
+                template = this.state.items.map(
+                    (item, i) => (
+                        <CSSTransition
+                            classNames={{
+                                enter: styles.newsList_wrapper,
+                                enterActive: styles.newsList_wrapper_enter
+                            }}
+                            timeout={500}
+                            key={i}
+                        >
+                            <div>
+                                <div className={styles.newslist_item}>
+                                    <Link to={`/articles/${item.id}`}>
+                                        <CardInfo
+                                            teams={this.state.teams}
+                                            team={item.team}
+                                            date={item.date}
+                                        />
+                                        <h2>{item.title}</h2>
+                                    </Link>
+                                </div>
                             </div>
-                        </div>
-                    </CSSTransition>
+                        </CSSTransition>
                     ));
                 break;
+
+            case 'cardMain':
+                template = this.state.items.map(
+                    (item, i) => (
+                        <CSSTransition
+                            classNames={{
+                                enter: styles.newsList_wrapper,
+                                enterActive: styles.newsList_wrapper_enter
+                            }}
+                            timeout={500}
+                            key={i}
+                        >
+                            <Link to={`/articles/${item.id} `}>
+                                <div className={styles.flex_wrapper}>
+                                    <div className={styles.left}
+                                        style={{
+                                            background: `url('/images/articles/${item.image}')`
+                                        }}
+                                    >
+                                    <div></div>
+                                    </div>
+                                    <div className={styles.right}>
+                                        <CardInfo
+                                            teams={this.state.teams}
+                                            team={item.team}
+                                            date={item.date}
+                                        />
+                                        <h2>{item.title}</h2>
+                                    </div>
+                                </div>
+                            </Link>
+                        </CSSTransition>)
+                );
+                break;
+
             default:
                 template = null;
                 break;
