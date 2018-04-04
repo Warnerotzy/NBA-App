@@ -7,14 +7,15 @@ import VideosList from '../widgets/VideosList/videosList';
 const Home = () => {
     return (
         <div>
-            <NewsSlider 
+            
+            { <NewsSlider 
                 type="featured"
                 start={0}
                 amount={3}
                 settings={{
                     dots: false
                 }}
-            />
+            />/*
             <NewsList 
                 type="card"
                 loadmore={true}
@@ -28,7 +29,8 @@ const Home = () => {
                 loadmore={true}
                 start={0}
                 amount={3}
-            />
+            /> */}
+            
         </div>
     );
 };

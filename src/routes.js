@@ -7,6 +7,8 @@ import VideoArticle from './components/Articles/Videos/Video/index';
 import NewsMain from './components/Articles/News/Main/index';
 import VideosMain from './components/Articles/Videos/Main';
 
+
+
 class Routes extends Component {
     render() {
         return (
