@@ -2,30 +2,31 @@ import React, { Component } from 'react';
 import styles from './signin.css';
 
 import FormField from '../widgets/FormFields/formFields';
+import { firebase } from '../../firebase';
 
 class SignIn extends Component {
 
-    state= {
-        registerError:'',
+    state = {
+        registerError: '',
         loading: false,
         formdata: {
-            email:{
-                element:'input',
-                value:'',
-                config:{
+            email: {
+                element: 'input',
+                value: '',
+                config: {
                     name: 'email-input',
                     type: 'email',
                     placeholder: 'Enter your email'
                 },
-                validation:{
+                validation: {
                     required: true,
-                    email:true
+                    email: true
                 },
                 valid: false,
                 touched: false,
                 validationMessage: ''
             },
-            password:{
+            password: {
                 element: 'input',
                 value: '',
                 config: {
@@ -45,9 +46,9 @@ class SignIn extends Component {
 
     }
 
-    updateForm = (element)=>{
+    updateForm = (element) => {
         const newFormData = {
-            ...this.state.formdata 
+            ...this.state.formdata
         }
 
         const newElement = {
@@ -55,38 +56,38 @@ class SignIn extends Component {
         }
 
         newElement.value = element.event.target.value;
-        if(element.blur){
+        if (element.blur) {
             let validData = this.validate(newElement);
             newElement.valid = validData[0];
             newElement.validationMessage = validData[1];
         }
         newElement.touched = element.blur;
-        newFormData[element.id] =  newElement;
+        newFormData[element.id] = newElement;
 
-         this.setState({
-             formdata: newFormData
-         });
-         
+        this.setState({
+            formdata: newFormData
+        });
+
     }
 
     validate = (element) => {
         let error = [true, ''];
-        
-        if(element.validation.email){
+
+        if (element.validation.email) {
             const valid = /\S+@\S+\.\S+/.test(element.value);
-            const message = `${!valid ? 'Must be a valid email':''}`;
+            const message = `${!valid ? 'Must be a valid email' : ''}`;
             error = !valid ? [valid, message] : error
         }
 
-        if(element.validation.password){
-            const valid = element.value.length >=5;
-            const message = `${!valid ? 'Must be greater than 5':''}`;
+        if (element.validation.password) {
+            const valid = element.value.length >= 5;
+            const message = `${!valid ? 'Must be greater than 5' : ''}`;
             error = !valid ? [valid, message] : error
         }
 
-        if(element.validation.required){
+        if (element.validation.required) {
             const valid = element.value.trim() !== '';
-            const message = `${!valid ? 'This field is required':''}`;
+            const message = `${!valid ? 'This field is required' : ''}`;
             error = !valid ? [valid, message] : error
         }
 
@@ -94,55 +95,86 @@ class SignIn extends Component {
     }
 
 
-    submitButton  = () => (
+    submitButton = () => (
         this.state.loading ?
-         'loading...'
-         :
-         <div>
-             <button onClick={(event)=>this.submitForm(event,false)}>Register now</button>
+            'loading...'
+            :
+            <div>
+                <button onClick={(event) => this.submitForm(event, false)}>Register now</button>
                 <button onClick={(event) => this.submitForm(event, true)}>Login</button>
-         </div>
+            </div>
     )
 
-    submitForm = (event, type) =>{
+    submitForm = (event, type) => {
         event.preventDefault();
-        if(type !== null){
+        if (type !== null) {
             let dataToSubmit = {};
             let formIsValid = true;
 
-            for(let key in this.state.formdata){
+            for (let key in this.state.formdata) {
                 dataToSubmit[key] = this.state.formdata[key].value
             }
 
-            for(let key in this.state.formdata){
+            for (let key in this.state.formdata) {
                 formIsValid = this.state.formdata[key].valid && formIsValid;
             }
 
-            if(formIsValid){
+            if (formIsValid) {
                 this.setState({
-                    loading:true,
-                    registerError:''
+                    loading: true,
+                    registerError: ''
                 })
-
-                if(type){
-                    console.log('LOGIN')
+                if (type) {
+                    firebase.auth()
+                    .signInWithEmailAndPassword(
+                        dataToSubmit.email,
+                        dataToSubmit.password
+                    ).then(() => {
+                        this.props.history.push('/')
+                    }).catch(e => {
+                        this.setState({
+                            loading: false,
+                            registerError: e.message
+                        })
+                    })
                 } else {
-                    console.log('REGISTER');
+                    firebase.auth()
+                        .createUserWithEmailAndPassword(
+                            dataToSubmit.email,
+                            dataToSubmit.password
+                        
+                    ).then(() => {
+                        this.props.history.push('/')
+                    }).catch(e => {
+                        this.setState({
+                            loading: false,
+                            registerError: e.message
+                        })
+                    })
                 }
             }
 
         }
     }
 
+    showError = () => (
+        this.state.registerError !== '' ? 
+        <div className={styles.error}>
+                {this.state.registerError}
+        </div>
+        : ''
+    )
+    
+
     render() {
         return (
             <div className={styles.logContainer}>
-                <form onSubmit={(event)=>this.submitForm(event, null)}>
+                <form onSubmit={(event) => this.submitForm(event, null)}>
                     <h2>Register / Login</h2>
-                    <FormField 
+                    <FormField
                         id={'email'}
                         formdata={this.state.formdata.email}
-                        change={(element)=>this.updateForm(element)}
+                        change={(element) => this.updateForm(element)}
                     />
 
                     <FormField
@@ -152,6 +184,7 @@ class SignIn extends Component {
                     />
 
                     {this.submitButton()}
+                    {this.showError()}
                 </form>
             </div>
         );
