@@ -1,6 +1,15 @@
-RUN JSON SERVER:
+HOW TO PREPARE ENVIRONMENT FOR DEVELOPMENT:
+- Clone this Git repository to your computer
+- In a terminal, run inside the project folder:
+  · $ npm i
+  · $ npm start
 
-$ npm run dev-serv
+HOW TO DEPLOY TO PRODUCTION (On Firebase Hosting):
+- Run:
+  $ sudo npm install -g firebase-tools
+  $ firebase init
+  $ firebase deploy
+
 
 
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).

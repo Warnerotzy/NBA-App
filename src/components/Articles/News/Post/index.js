@@ -13,11 +13,11 @@ class NewsArticles extends Component {
     }
 
     componentWillMount() {
-
         firebaseDB.ref(`articles/${this.props.match.params.id}`).once('value')
         .then((snapshot)=>{
-            let article = snapshot.val();            
-            firebaseTeams.orderByChild('id').equalTo(article.team).once('value')
+            let article = snapshot.val();
+
+            firebaseTeams.orderByChild("teamId").equalTo(article.team).once('value')
             .then((snapshot)=>{
                 const team = firebaseLooper(snapshot);
                 this.setState({

@@ -130,7 +130,7 @@ class NewsList extends Component {
                             timeout={500}
                             key={i}
                         >
-                            <Link to={`/articles/${item.id} `}>
+                            <Link to={`/articles/${item.id}`}>
                                 <div className={styles.flex_wrapper}>
                                     <div className={styles.left}
                                         style={{
@@ -149,8 +149,8 @@ class NewsList extends Component {
                                     </div>
                                 </div>
                             </Link>
-                        </CSSTransition>)
-                );
+                        </CSSTransition>
+                        ));
                 break;
 
             default:
