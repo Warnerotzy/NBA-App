@@ -53,6 +53,7 @@ class NewsList extends Component {
         .then((snapshot)=>{
             
             const articles = firebaseLooper(snapshot);
+            
             const asyncFunction = (item, i, cb) => {
                 firebase.storage().ref('images')
                     .child(item.image).getDownloadURL()
