@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import FormField from '../widgets/FormFields/formFields';
 import styles from './dashboard.css';
-import { firebase, firebaseTeams } from '../../firebase';
+import { firebase, firebaseTeams, firebaseArticles } from '../../firebase';
 
 import { Editor } from 'react-draft-wysiwyg';
 import { EditorState, convertFromRaw, convertToRaw } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 
+import Uploader from '../widgets/fileUploader/fileUploader';
 
 class Dashboard extends Component {
     state = {
@@ -49,7 +50,12 @@ class Dashboard extends Component {
                 value: '',
                 valid:true
             },
-            teams: {
+            image: {
+                element: 'image',
+                value: '',
+                valid:true
+            },
+            team: {
                 element: 'select',
                 value: '',
                 config: {
@@ -122,12 +128,36 @@ class Dashboard extends Component {
             formIsValid = this.state.formdata[key].valid && formIsValid;
         }
 
-        console.log(dataToSubmit)
-
         if (formIsValid) {
-            console.log("SUBMIT POST")
-        }
-        else{
+            this.setState({
+                loading:true,
+                postError: ''
+            })
+            
+            firebaseArticles.orderByChild('id')
+            .limitToLast(1).once('value')
+            .then(snapshot => {
+                let articleId = null;
+                snapshot.forEach(childSnapshot => {
+                    articleId = childSnapshot.val().id
+                })
+                
+                dataToSubmit['date'] = firebase.database.ServerValue.TIMESTAMP;
+                dataToSubmit['id'] = articleId+1;
+                dataToSubmit['team'] = parseInt(dataToSubmit['team']);
+                
+                firebaseArticles.push(dataToSubmit)
+                .then(article => {
+                    this.props.history.push(`/articles/${article.key}`)
+                }).catch( e => {
+                    this.setState({
+                        postError: e.message
+                    })
+                }
+
+                )
+            })
+        }else{
             this.setState({
                 postError:'Something went wrong'
             })
@@ -167,17 +197,17 @@ class Dashboard extends Component {
     loadTeams = () => {
         firebaseTeams.once('value')
         .then((snapshot)=>{
-            let teams = [];
+            let team = [];
             snapshot.forEach(childSnapshot => {
-                teams.push({
+                team.push({
                     id:childSnapshot.val().teamId,
                     name: childSnapshot.val().city
                 })
             });
             const newFormData = {...this.state.formdata}
-            const newElement = {...newFormData['teams']}
-            newElement.config.options = teams;
-            newFormData['teams'] = newElement;
+            const newElement = {...newFormData['team']}
+            newElement.config.options = team;
+            newFormData['team'] = newElement;
 
             this.setState({
                 formdata: newFormData
@@ -189,11 +219,20 @@ class Dashboard extends Component {
         this.loadTeams();
     }
 
+    storeFilename = (filename) => {
+        this.updateForm({id:'image'}, filename);
+    }
+
     render() {
         return (
             <div className={styles.postContainer}>
                 <form onSubmit={this.submitForm}>
                     <h2>Add post</h2>
+
+                    <Uploader 
+                        filename={(filename) => this.storeFilename(filename)}
+                    />
+
                     <FormField
                         id={'author'}
                         formdata={this.state.formdata.author}
@@ -213,8 +252,8 @@ class Dashboard extends Component {
                     />
 
                     <FormField
-                        id={'teams'}
-                        formdata={this.state.formdata.teams}
+                        id={'team'}
+                        formdata={this.state.formdata.team}
                         change={(element) => this.updateForm(element)}
                     />
 
