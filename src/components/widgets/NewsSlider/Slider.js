@@ -14,7 +14,6 @@ class NewsSlider extends Component {
             .then((snapshot) => {
                 const news = firebaseLooper(snapshot);
 
-
                 const asyncFunction = (item, i, cb) => {
                     firebase.storage().ref('images')
                         .child(item.image).getDownloadURL()
@@ -37,13 +36,6 @@ class NewsSlider extends Component {
                     });
                 });
 
-
-                /*axios.get(`${URL}/articles?_start=${this.props.start}&_end=${this.props.amount}`)
-                .then( response => {
-                    this.setState({
-                        news: response.data
-                    })
-                }) */
             });
     }
 

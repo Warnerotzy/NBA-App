@@ -4,7 +4,7 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Link } from 'react-router-dom';
 import styles from './newslist.css';
 
-import {firebaseTeams, firebaseArticles, firebaseLooper } from '../../../firebase';
+import {firebase, firebaseTeams, firebaseArticles, firebaseLooper } from '../../../firebase';
 
 import Button from '../Buttons/buttons';
 import CardInfo from '../CardInfo/cardInfo';
@@ -17,7 +17,17 @@ class NewsList extends Component {
         teams: [],
         start: this.props.start,
         end: this.props.start + this.props.amount,
-        amount: this.props.amount
+        amount: this.props.amount,
+
+    }
+
+    getImageURL = (filename) => {
+        firebase.storage().ref('images')
+            .child(filename).getDownloadURL()
+            .then(url => {
+                console.log(url)
+                return url
+            })
     }
 
 
@@ -36,37 +46,46 @@ class NewsList extends Component {
                 })
             })
 
-            /* axios.get(`${URL}/teams`)
-                .then(response => {
-                    this.setState({
-                        teams: response.data
-                    })
-                }) */
 
         }
 
         firebaseArticles.orderByChild('id').startAt(start).endAt(end).once('value')
         .then((snapshot)=>{
+            
             const articles = firebaseLooper(snapshot);
-            this.setState({
-                items: [...this.state.items, ...articles],
-                start,
-                end
+            const asyncFunction = (item, i, cb) => {
+                firebase.storage().ref('images')
+                    .child(item.image).getDownloadURL()
+                    .then(url => {
+                        articles[i].image = url;
+                        cb();
+                    })
+            }
+
+            let requests = articles.map((item, i) => {
+                return new Promise((resolve) => {
+                    asyncFunction(item, i, resolve);
+                });
+            });
+
+            Promise.all(requests)
+                .then(() => {
+                    this.setState({
+                        items: [...this.state.items, ...articles],
+                        start,
+                        end
+                    
+                });
             })
         })
         .catch(e=>{
             console.log(e);
         })
 
-        /* axios.get(`${URL}/articles?_start=${start}&_end=${end}`)
-            .then(response => {
-                this.setState({
-                    items: [...this.state.items, ...response.data],
-                    start,
-                    end
-                })
-            }) */
     }
+
+  
+
 
     renderNews = (type) => {
         let template = null;
@@ -99,6 +118,7 @@ class NewsList extends Component {
                 break;
 
             case 'cardMain':
+                
                 template = this.state.items.map(
                     (item, i) => (
                         <CSSTransition
@@ -113,7 +133,7 @@ class NewsList extends Component {
                                 <div className={styles.flex_wrapper}>
                                     <div className={styles.left}
                                         style={{
-                                            background: `url('/images/articles/${item.image}')`
+                                            background: `url('${item.image}')`
                                         }}
                                     >
                                     <div></div>
