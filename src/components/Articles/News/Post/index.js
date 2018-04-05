@@ -16,7 +16,7 @@ class NewsArticles extends Component {
 
         firebaseDB.ref(`articles/${this.props.match.params.id}`).once('value')
         .then((snapshot)=>{
-            let article = snapshot.val();
+            let article = snapshot.val();            
             firebaseTeams.orderByChild('id').equalTo(article.team).once('value')
             .then((snapshot)=>{
                 const team = firebaseLooper(snapshot);
@@ -27,18 +27,6 @@ class NewsArticles extends Component {
                 this.getImageURL(article.image);
             })
         });
-
-        /* axios.get(`${URL}/articles?id=${this.props.match.params.id}`)
-        .then( response => {
-            let article = response.data[0];
-            axios.get(`${URL}/teams/?id=${article.team}`)
-            .then( response=>{
-                this.setState({
-                    article, 
-                    team: response.data
-                })
-            })
-        }) */
     }
 
     getImageURL = (filename) => {
