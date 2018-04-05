@@ -17,7 +17,7 @@ const postData = (props) => (
     </div>
     <div>
         Author:
-        <span>{props.data.author}</span>
+        <span> {props.data.author}</span>
     </div>
     </div>
 )
