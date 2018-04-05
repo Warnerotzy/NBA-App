@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import FormField from '../widgets/FormFields/formFields';
 import styles from './dashboard.css';
+import { firebase, firebaseTeams } from '../../firebase';
 
 import { Editor } from 'react-draft-wysiwyg';
 import { EditorState, convertFromRaw, convertToRaw } from 'draft-js';
@@ -47,6 +48,20 @@ class Dashboard extends Component {
                 element: 'texteditor',
                 value: '',
                 valid:true
+            },
+            teams: {
+                element: 'select',
+                value: '',
+                config: {
+                    name: 'title-input',
+                    options: []
+                },
+                validation: {
+                    required: true
+                },
+                valid: false,
+                touched: false,
+                validationMessage: ''
             }
         }
     }
@@ -149,6 +164,31 @@ class Dashboard extends Component {
         })
     }
 
+    loadTeams = () => {
+        firebaseTeams.once('value')
+        .then((snapshot)=>{
+            let teams = [];
+            snapshot.forEach(childSnapshot => {
+                teams.push({
+                    id:childSnapshot.val().teamId,
+                    name: childSnapshot.val().city
+                })
+            });
+            const newFormData = {...this.state.formdata}
+            const newElement = {...newFormData['teams']}
+            newElement.config.options = teams;
+            newFormData['teams'] = newElement;
+
+            this.setState({
+                formdata: newFormData
+            })
+        })
+    }
+
+    componentDidMount(){
+        this.loadTeams();
+    }
+
     render() {
         return (
             <div className={styles.postContainer}>
@@ -170,6 +210,12 @@ class Dashboard extends Component {
                     wrapperClassName="myeditor-wrapper"
                     editorClassName="myeditor-editor"
                     onEditorStateChange={this.onEditorStateChange}
+                    />
+
+                    <FormField
+                        id={'teams'}
+                        formdata={this.state.formdata.teams}
+                        change={(element) => this.updateForm(element)}
                     />
 
                     {this.submitButton()}
