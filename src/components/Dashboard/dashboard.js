@@ -4,7 +4,7 @@ import styles from './dashboard.css';
 import { firebase, firebaseTeams, firebaseArticles } from '../../firebase';
 
 import { Editor } from 'react-draft-wysiwyg';
-import { EditorState, convertFromRaw, convertToRaw } from 'draft-js';
+import { EditorState } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 
 import Uploader from '../widgets/fileUploader/fileUploader';
@@ -144,7 +144,7 @@ class Dashboard extends Component {
                 
                 dataToSubmit['date'] = firebase.database.ServerValue.TIMESTAMP;
                 dataToSubmit['id'] = articleId+1;
-                dataToSubmit['team'] = parseInt(dataToSubmit['team']);
+                dataToSubmit['team'] = parseInt(dataToSubmit['team'],10);
                 
                 firebaseArticles.push(dataToSubmit)
                 .then(article => {
@@ -184,7 +184,7 @@ class Dashboard extends Component {
     onEditorStateChange = (editorState) => {
 
         let contentState = editorState.getCurrentContent();
-        let rawState = convertToRaw(contentState);
+        //let rawState = convertToRaw(contentState);
         let html = stateToHTML(contentState)
         
         this.updateForm({id: 'body'}, html)
